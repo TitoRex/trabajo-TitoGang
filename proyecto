@@ -1,1 +1,83 @@
+from django.db import models
 
+
+class Usuario(models.Model):
+    # Información de la persona que usa Capitalia
+    nombre = models.CharField(max_length=100)
+    email = models.CharField(max_length=150)
+    contraseña = models.CharField(max_length=100)
+    perfil_riesgo = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.nombre
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nombre": self.nombre,
+            "email": self.email,
+            "contraseña": self.contraseña,
+            "perfil_riesgo": self.perfil_riesgo,
+        }
+
+
+class Inversion(models.Model):
+    # Opciones de inversión que ofrece Capitalia
+    nombre = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=50)
+    riesgo = models.CharField(max_length=20)
+    rendimiento_estimado = models.DecimalField(max_digits=10, decimal_places=2)
+    monto_minimo = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.nombre
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nombre": self.nombre,
+            "tipo": self.tipo,
+            "riesgo": self.riesgo,
+            "rendimiento_estimado": self.rendimiento_estimado,
+            "monto_minimo": self.monto_minimo,
+        }
+
+
+class InversionUsuario(models.Model):
+    # Relaciona un usuario con una inversión
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    inversion = models.ForeignKey(Inversion, on_delete=models.CASCADE)
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha = models.DateField()
+
+    def __str__(self):
+        return self.usuario.nombre + " - " + self.inversion.nombre
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "usuario": self.usuario.id,
+            "inversion": self.inversion.id,
+            "monto": self.monto,
+            "fecha": self.fecha.isoformat(),
+        }
+
+
+class Recomendacion(models.Model):
+    # Guarda las recomendaciones hechas a cada usuario
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    inversion = models.ForeignKey(Inversion, on_delete=models.CASCADE)
+    motivo = models.CharField(max_length=255)
+    fecha = models.DateField()
+
+    def __str__(self):
+        return self.usuario.nombre + " - " + self.inversion.nombre
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "usuario": self.usuario.id,
+            "inversion": self.inversion.id,
+            "motivo": self.motivo,
+            "fecha": self.fecha.isoformat(),
+        }
